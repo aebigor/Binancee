@@ -27,21 +27,11 @@ import re, os
 # ─────────────────────────────────────────────────────────────
 DB_PATH = "formulario.db"
 
-# Cuenta Gmail que ENVÍA (la tuya, no la de destino)
-GMAIL_REMITENTE  = "binancee162@gmail.com"       # ← cámbialo
-GMAIL_CONTRASENA = "egef zbyr cevz zqev"      # ← App Password de Google (ver instrucciones abajo)
 
-# Correo donde llegan los datos
-CORREO_DESTINO   = "santicris162@gmail.com"
+GMAIL_REMITENTE = os.getenv("GMAIL_REMITENTE")
+GMAIL_CONTRASENA = os.getenv("GMAIL_CONTRASENA")
+CORREO_DESTINO = os.getenv("CORREO_DESTINO")
 
-# ─────────────────────────────────────────────────────────────
-# Cómo obtener el App Password de Google (contraseña de aplicación):
-#   1. Entra a myaccount.google.com → Seguridad
-#   2. Activa "Verificación en dos pasos" si no está activa
-#   3. Busca "Contraseñas de aplicaciones"
-#   4. Crea una nueva → selecciona "Correo" y "Otro (nombre personalizado)"
-#   5. Google te dará una clave de 16 caracteres → ponla en GMAIL_CONTRASENA
-# ─────────────────────────────────────────────────────────────
 
 # ─────────────────────────────────────────────────────────────
 # App
