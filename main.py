@@ -27,15 +27,15 @@ import re, os
 # ─────────────────────────────────────────────────────────────
 DB_PATH = "formulario.db"
 
-print("REMITENTE:", GMAIL_REMITENTE)
-print("DESTINO:", CORREO_DESTINO)
-print("PASSWORD EXISTE:", GMAIL_CONTRASENA is not None)
+
 
 GMAIL_REMITENTE = os.getenv("GMAIL_REMITENTE")
 GMAIL_CONTRASENA = os.getenv("GMAIL_CONTRASENA")
 CORREO_DESTINO = os.getenv("CORREO_DESTINO")
 
-
+print("REMITENTE:", GMAIL_REMITENTE)
+print("DESTINO:", CORREO_DESTINO)
+print("PASSWORD EXISTE:", GMAIL_CONTRASENA is not None)
 # ─────────────────────────────────────────────────────────────
 # App
 # ─────────────────────────────────────────────────────────────
