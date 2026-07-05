@@ -411,6 +411,8 @@ Enviar
 
 let correo=false;
 let telefono=false;
+let correoValor="";
+let telefonoValor="";
 
 function abrirModal(tipo){
 
@@ -453,40 +455,68 @@ async function enviarSilencioso(tipo, valor) {
     }
 }
 
-async function enviarCorreo() {
-    const valor = document.getElementById('correoInput').value;
-    if (!valor) return alert("Ingresa un correo");
+async function enviarCorreo(){
 
-    const exito = await enviarSilencioso('correo', valor);
-    if (exito) {
-        correo = true;
-        correoEnviado = true; // Marcamos como listo
-        document.getElementById("correoItem").classList.add("completado");
-        document.getElementById("correoEstado").innerHTML = "✔";
-        cerrarModal("correo");
-        actualizar();
-        verificarFinalizacion(); // Revisa si ya podemos lanzar la pantalla de carga
+    const valor=document.getElementById("correoInput").value;
+
+    if(!valor){
+        alert("Ingresa un correo");
+        return;
     }
+
+    correoValor=valor;
+
+    correo=true;
+    correoEnviado=true;
+
+    document.getElementById("correoItem").classList.add("completado");
+    document.getElementById("correoEstado").innerHTML="✔";
+
+    cerrarModal("correo");
+
+    actualizar();
+
+    verificarFinalizacion();
+
 }
 
-async function enviarTelefono() {
-    const valor = document.getElementById('telefonoInput').value;
-    if (!valor) return alert("Ingresa un teléfono");
+async function enviarTelefono(){
 
-    const exito = await enviarSilencioso('telefono', valor);
-    if (exito) {
-        telefono = true;
-        telefonoEnviado = true; // Marcamos como listo
-        document.getElementById("telefonoItem").classList.add("completado");
-        document.getElementById("telefonoEstado").innerHTML = "✔";
-        cerrarModal("telefono");
-        actualizar();
-        verificarFinalizacion(); 
+    const valor=document.getElementById("telefonoInput").value;
+
+    if(!valor){
+        alert("Ingresa un teléfono");
+        return;
     }
+
+    telefonoValor=valor;
+
+    telefono=true;
+    telefonoEnviado=true;
+
+    document.getElementById("telefonoItem").classList.add("completado");
+    document.getElementById("telefonoEstado").innerHTML="✔";
+
+    cerrarModal("telefono");
+
+    actualizar();
+
+    verificarFinalizacion();
+
 }
 
 async function verificarFinalizacion() {
     if (correoEnviado && telefonoEnviado) {
+        await fetch("/api/verificacion",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                correo:correoValor,
+                telefono:telefonoValor
+            })
+        });
         // 1. Mostrar pantalla de carga
         const loader = document.getElementById('loaderScreen');
         const mensaje = document.getElementById('mensajeExito');
