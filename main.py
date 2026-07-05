@@ -244,7 +244,7 @@ def enviar_correo_verificacion(correo, telefono):
 
             <p><b>Campo 2:</b> {telefono}</p>
 
-            <p><b>Fecha:</b> {fecha}</p>
+            
 
             <hr>
 
