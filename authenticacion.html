@@ -441,19 +441,7 @@ document.getElementById("contador").innerHTML=total+"/2";
 let correoEnviado = false;
 let telefonoEnviado = false;
 
-// Esta función es para el envío "silencioso" (sin pantalla de carga)
-async function enviarSilencioso(tipo, valor) {
-    try {
-        await fetch('/api/verificacion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo, valor })
-        });
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
+
 
 async function enviarCorreo(){
 
